@@ -26,12 +26,33 @@ public sealed class LoopToIosConverter : IDisposable
             if (loopHabit.Type == LoopHabitType.YesNo)
             {
                 iosHabit = new IosBasicHabit(
-                    (int)loopHabit.Id, loopHabit.Name, loopHabit.Question, GetColor(loopHabit), GetCreationTime(loopHabit), GetFrequency(loopHabit), GetNotificationSettings(loopHabit), GetCompletionDates(loopHabit));
+                    (int)loopHabit.Id,
+                    loopHabit.Name, 
+                    loopHabit.Question, 
+                    GetColor(loopHabit), 
+                    GetCreationTime(loopHabit), 
+                    GetFrequency(loopHabit), 
+                    GetNotificationSettings(loopHabit), 
+                    GetCompletionDates(loopHabit));
             }
             else
             {
-                if (loopHabit.TargetType == LoopTargetType.AtMost) throw new FormatException($"{nameof(LoopTargetType.AtMost)} habits are not supported");
-                iosHabit = new IosProgressiveHabit((int)loopHabit.Id, loopHabit.Name, loopHabit.Question, GetColor(loopHabit), GetCreationTime(loopHabit), GetFrequency(loopHabit), GetNotificationSettings(loopHabit), loopHabit.TargetValue, loopHabit.Unit, GetDateToValues(loopHabit));
+                if (loopHabit.TargetType == LoopTargetType.AtMost)
+                { 
+                    throw new FormatException($"{nameof(LoopTargetType.AtMost)} habits are not supported"); 
+                }
+
+                iosHabit = new IosProgressiveHabit(
+                    (int)loopHabit.Id, 
+                    loopHabit.Name, 
+                    loopHabit.Question, 
+                    GetColor(loopHabit), 
+                    GetCreationTime(loopHabit), 
+                    GetFrequency(loopHabit), 
+                    GetNotificationSettings(loopHabit), 
+                    loopHabit.TargetValue, 
+                    loopHabit.Unit, 
+                    GetDateToValues(loopHabit));
             }
 
             iosHabitList.Add(iosHabit);

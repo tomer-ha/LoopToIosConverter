@@ -1,27 +1,6 @@
 ﻿namespace LoopToIosConverter.Common;
 
-public record LoopHabit(
-    long? Id,
-    string Name,
-    string Description,
-    string Question,
-    int? FrequencyNumerator,
-    int? FrequencyDenominator,
-    LoopColor Color,
-    int Position,
-    int? ReminderHour,
-    int? ReminderMinute,
-    int? ReminderDays,
-    bool IsArchived,
-    LoopTargetType TargetType,
-    decimal? TargetValue,
-    string Unit,
-    string? Uuid)
-{
-
-}
-
-public enum LoopColor
+public enum LoopColor : long
 {
     Red,
     DeepOrange,
@@ -45,20 +24,20 @@ public enum LoopColor
     LightGrey
 }
 
-public enum LoopTargetType
+public enum LoopTargetType : long
 {
     AtLeast,
     AtMost
 }
 
-public enum LoopHabitType
+public enum LoopHabitType : long
 {
     YesNo,
     Numerical
 }
 
 [Flags]
-public enum LoopWeekdays
+public enum LoopWeekdays : long
 {
     Monday,
     Tuesday,

@@ -2,7 +2,7 @@
 
 public class IosToIosTest
 {
-    private string _csvFilePath;
+    private readonly string _csvFilePath;
 
     public IosToIosTest(string csvFilePath)
     {

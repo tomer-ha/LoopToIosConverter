@@ -69,8 +69,7 @@ public partial class LoopHabitsBackupContext : DbContext
 
             entity.Property(e => e.Unit)
                 .HasColumnType("text")
-                .HasColumnName("unit")
-                .HasDefaultValueSql("\"\"");
+                .HasColumnName("unit");
 
             entity.Property(e => e.Uuid)
                 .HasColumnType("text")
