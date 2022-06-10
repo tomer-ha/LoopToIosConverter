@@ -19,6 +19,7 @@ public class IosToIosTest
         }
 
         using var file = new StreamWriter(csvOutputFilePath);
+        file.NewLine = "\n";
         foreach (var habit in iosHabitList)
         {
             await file.WriteLineAsync(IosHabitFormatter.ToCsvString(habit));

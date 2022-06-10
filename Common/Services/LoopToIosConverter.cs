@@ -4,7 +4,7 @@ namespace LoopToIosConverter.Common;
 
 public sealed class LoopToIosConverter : IDisposable
 {
-    private LoopHabitsBackupContext _loopDatabaseContext;
+    private readonly LoopHabitsBackupContext _loopDatabaseContext;
 
     public LoopToIosConverter(string loopDatabasePath)
     {
@@ -45,11 +45,38 @@ public sealed class LoopToIosConverter : IDisposable
         }
     }
 
-    private static IosColor GetColor(Habit loopHabit) =>  // TODO
-        IosColor.Blue;
+    private static IosColor GetColor(Habit loopHabit) =>
+        loopHabit.Color switch
+        {
+            LoopColor.Red => IosColor.Red,
+            LoopColor.DeepOrange => IosColor.DeepOrange,
+            LoopColor.Orange => IosColor.Orange,
+            LoopColor.Amber => IosColor.DarkOrange,
+            LoopColor.Yellow => IosColor.Yellow,
+            LoopColor.Lime => IosColor.Lime,
+            LoopColor.LightGreen => IosColor.LightGreen,
+            LoopColor.Green => IosColor.Green,
+            LoopColor.Teal => IosColor.Teal,
+            LoopColor.Cyan => IosColor.Cyan,
+            LoopColor.LightBlue => IosColor.LightBlue,
+            LoopColor.Blue => IosColor.Blue,
+            LoopColor.Indigo => IosColor.Indigo,
+            LoopColor.DeepPurple => IosColor.DeepPurple,
+            LoopColor.Purple => IosColor.Purple,
+            LoopColor.Pink => IosColor.Pink,
+            LoopColor.Brown => IosColor.Brown,
+            LoopColor.DarkGrey => IosColor.DarkGreen,
+            LoopColor.Grey => IosColor.Grey,
+            LoopColor.LightGrey => IosColor.DarkBlue,
+            _ => throw new NotImplementedException(),
+        };
 
-    private static DateTime GetCreationTime(Habit loopHabit) => // TODO: habit with no repetitions
-        GetCompletionDates(loopHabit).Min().ToDateTime(new TimeOnly()).Subtract(TimeSpan.FromDays(1));
+    private static DateTime GetCreationTime(Habit loopHabit) =>
+        GetCompletionDates(loopHabit).
+        Append(DateOnly.FromDateTime(DateTime.Today)).
+        Min().
+        ToDateTime(new TimeOnly()).
+        Subtract(TimeSpan.FromDays(1));
 
     private static IosFrequency GetFrequency(Habit loopHabit) =>
         (loopHabit.FreqNum, loopHabit.FreqDen) switch

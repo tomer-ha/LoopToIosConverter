@@ -122,9 +122,29 @@ public sealed record IosDateAndValue(DateOnly Date, decimal Value);
 
 public enum IosColor
 {
-    Red = 0,
-    Green = 12,
-    Blue = 6
+    Red,
+    DeepOrange,
+    Indigo,
+    Pink,
+    DeepPurple,
+
+    DarkBlue,
+    LightBlue,
+    Purple,
+    Blue,
+    Teal,
+    
+    Cyan,
+    LightGreen,
+    Green,
+    DarkGreen,
+    Lime,
+
+    Yellow,
+    Orange,
+    DarkOrange,
+    Brown,
+    Grey
 }
 
 public class IosFrequency
