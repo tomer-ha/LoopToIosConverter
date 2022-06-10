@@ -1,6 +1,6 @@
 ﻿namespace LoopToIosConverter.Common;
 
-public class Habit
+public partial class Habit
 {
     public Habit()
     {

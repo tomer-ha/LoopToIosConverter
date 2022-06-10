@@ -1,19 +1,25 @@
-﻿namespace LoopToIosConverter.Common;
+﻿using System.Globalization;
+
+namespace LoopToIosConverter.Common;
 
 public static class IosHabitFormatter
 {
+    private static string _creationTimeFormat = "yyyy-MM-d-H:m:ss.ffff";
+    private static string _repetitionDateFormat = "yyyyMMdd";
+
     public static IosHabit FromCsvString(string csvLine)
     {
         var split = csvLine.Split(',');
         if (split.Length != 12) throw new FormatException();
 
         var id = int.Parse(split[0]);
-        var title = split[1];
-        var question = split[3];
+        var title = split[1].Trim('"');
+        var question = split[3].Trim('"');
         var color = (IosColor)int.Parse(split[4]);
-        var createdTime = DateTime.Parse(split[5]);
-        var frequency = new IosFrequency(split[6]);
-        var notificationSettings = string.IsNullOrEmpty(split[7]) ? null : new IosNotificationSettings(split[7]);
+        var createdTime = DateTime.ParseExact(split[5], _creationTimeFormat, CultureInfo.InvariantCulture);
+        var frequency = new IosFrequency(split[6].Trim('"'));
+        var unparsedNotificationSettings = split[7].Trim('"');
+        var notificationSettings = string.IsNullOrEmpty(unparsedNotificationSettings) ? null : new IosNotificationSettings(unparsedNotificationSettings);
         var dateAndValues = ParseDateAndValues(split[10]);
 
         return (split[2] == "0") ? CreateBasicHabit() : CreateProgressiveHabit();
@@ -33,10 +39,10 @@ public static class IosHabitFormatter
             habit is IosBasicHabit ? "0" : "1",
             Quoted(habit.Question),
             habit.Color.ToString("D"),
-            habit.CreationTime.ToString("yyyy-MM-d-h:m:s.ffff"),
-            habit.Frequency.ToCsvString(),
-            habit.NotificationSettings?.ToCsvString() ?? string.Empty,
-            habit.Target.ToString());
+            habit.CreationTime.ToString(_creationTimeFormat),
+            Quoted(habit.Frequency.ToCsvString()),
+            Quoted(habit.NotificationSettings?.ToCsvString() ?? string.Empty),
+            habit.Target.ToString("F1"));
 
         var suffixString = habit switch
         {
@@ -60,11 +66,11 @@ public static class IosHabitFormatter
     private static IReadOnlyCollection<IosDateAndValue> ParseDateAndValues(string csvFormat) =>
         csvFormat.Split('-').
             Select(csvDateAndValue => csvDateAndValue.Split(':')).
-            Select(splitCsvDateAndValue => new IosDateAndValue(DateOnly.Parse(splitCsvDateAndValue[0]), decimal.Parse(splitCsvDateAndValue[1]))).
+            Select(splitCsvDateAndValue => new IosDateAndValue(DateOnly.ParseExact(splitCsvDateAndValue[0], _repetitionDateFormat), decimal.Parse(splitCsvDateAndValue[1]))).
             ToList();
 
     private static string ToCsvFormat(this IReadOnlyCollection<IosDateAndValue> dateAndValues) =>
-        string.Join("-", dateAndValues.Select(dateAndValue => $"{dateAndValue.Date.ToString("yyyyMMdd")}:{dateAndValue.Value}").ToArray());
+        string.Join("-", dateAndValues.Select(dateAndValue => $"{dateAndValue.Date.ToString(_repetitionDateFormat)}:{dateAndValue.Value}").ToArray());
 
     private static IReadOnlyCollection<IosDateAndValue> ToIosDateAndValue(this IReadOnlyCollection<DateOnly> completedDates) =>
         completedDates.Select(date => new IosDateAndValue(date, 1)).ToList();
@@ -199,6 +205,6 @@ public class IosNotificationSettings
     public string ToCsvString()
     {
         var days = new string(DaysOfWeek.Select(day => day ? '1' : '0').ToArray());
-        return $"{days}:{TimeOfDay}";
+        return $"{days}:{TimeOfDay.ToString("H:m")}";
     }
 }

@@ -20,7 +20,7 @@ public sealed class LoopToIosConverter : IDisposable
     {
         var iosHabitList = new List<IosHabit>();
 
-        foreach (var loopHabit in _loopDatabaseContext.Habits)
+        foreach (var loopHabit in _loopDatabaseContext.Habits.Include(habit => habit.Repetitions).ToList())
         {
             IosHabit iosHabit;
             if (loopHabit.Type == LoopHabitType.YesNo)
@@ -38,6 +38,7 @@ public sealed class LoopToIosConverter : IDisposable
         }
 
         using var file = new StreamWriter(csvPath);
+        file.NewLine = "\n";
         foreach (var habit in iosHabitList)
         {
             await file.WriteLineAsync(IosHabitFormatter.ToCsvString(habit));
@@ -45,7 +46,7 @@ public sealed class LoopToIosConverter : IDisposable
     }
 
     private static IosColor GetColor(Habit loopHabit) =>  // TODO
-        IosColor.Red;
+        IosColor.Blue;
 
     private static DateTime GetCreationTime(Habit loopHabit) => // TODO: habit with no repetitions
         GetCompletionDates(loopHabit).Min().ToDateTime(new TimeOnly()).Subtract(TimeSpan.FromDays(1));
