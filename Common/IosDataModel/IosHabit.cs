@@ -4,8 +4,8 @@ namespace LoopToIosConverter.Common;
 
 public static class IosHabitFormatter
 {
-    private static string _creationTimeFormat = "yyyy-MM-d-H:m:ss.ffff";
-    private static string _repetitionDateFormat = "yyyyMMdd";
+    private const string _creationTimeFormat = "yyyy-MM-d-H:m:ss.ffff";
+    private const string _repetitionDateFormat = "yyyyMMdd";
 
     public static IosHabit FromCsvString(string csvLine)
     {
@@ -16,7 +16,7 @@ public static class IosHabitFormatter
         var title = split[1].Trim('"');
         var question = split[3].Trim('"');
         var color = (IosColor)int.Parse(split[4]);
-        var createdTime = DateTime.ParseExact(split[5], _creationTimeFormat, CultureInfo.InvariantCulture);
+        var createdTime = DateTime.ParseExact(split[5], _creationTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
         var frequency = new IosFrequency(split[6].Trim('"'));
         var unparsedNotificationSettings = split[7].Trim('"');
         var notificationSettings = string.IsNullOrEmpty(unparsedNotificationSettings) ? null : new IosNotificationSettings(unparsedNotificationSettings);
@@ -72,7 +72,9 @@ public static class IosHabitFormatter
 
         return csvFormat.Split('-').
             Select(csvDateAndValue => csvDateAndValue.Split(':')).
-            Select(splitCsvDateAndValue => new IosDateAndValue(DateOnly.ParseExact(splitCsvDateAndValue[0], _repetitionDateFormat), decimal.Parse(splitCsvDateAndValue[1]))).
+            Select(splitCsvDateAndValue => new IosDateAndValue(
+                DateOnly.ParseExact(splitCsvDateAndValue[0], _repetitionDateFormat, CultureInfo.InvariantCulture),
+                decimal.Parse(splitCsvDateAndValue[1]))).
             ToList();
     }
 

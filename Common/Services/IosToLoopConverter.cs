@@ -132,13 +132,13 @@ public sealed class IosToLoopConverter
             IosBasicHabit iosBasicHabit => iosBasicHabit.CompletedDates.
             Select(completedDate => new Repetition
             {
-                Timestamp = new DateTimeOffset(completedDate.ToDateTime(new TimeOnly())).ToUnixTimeMilliseconds(),
+                Timestamp = new DateTimeOffset(completedDate.ToDateTime(new TimeOnly(), DateTimeKind.Utc)).ToUnixTimeMilliseconds(),
                 Value = 2
             }).
             ToList(),
             IosProgressiveHabit iosProgressiveHabit => iosProgressiveHabit.DateAndValues.Select(dateAndValue => new Repetition
             {
-                Timestamp = new DateTimeOffset(dateAndValue.Date.ToDateTime(new TimeOnly())).ToUnixTimeMilliseconds(),
+                Timestamp = new DateTimeOffset(dateAndValue.Date.ToDateTime(new TimeOnly(), DateTimeKind.Utc)).ToUnixTimeMilliseconds(),
                 Value = (int)(dateAndValue.Value * 1000)
             }).
             ToList(),
