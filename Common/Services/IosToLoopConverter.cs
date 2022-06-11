@@ -11,27 +11,28 @@ public sealed class IosToLoopConverter
         _csvFilePath = csvFilePath;
     }
 
-    public async Task ConvertAsync(string dbFilePath)
+    public async Task ConvertAsync(string dbFilePath, bool keepOrder = false)
     {
         var loopHabitList = new List<Habit>();
 
         using var fileReader = new StreamReader(_csvFilePath);
         string? line;
-        var habitPosition = 0;
+        var lineIndex = 0;
 
         while ((line = await fileReader.ReadLineAsync()) != null)
         {
             var iosHabit = IosHabitFormatter.FromCsvString(line);
             var (frequencyNumerator, frequencyDenominator) = GetFrequency(iosHabit);
             var (reminderDays, reminderHour, reminderMinutes) = GetReminder(iosHabit);
+            var (position, name) = keepOrder ? InferPosition(iosHabit) : (lineIndex, iosHabit.Title);
             var habit = new Habit
             {
                 Id = iosHabit.Id,
                 Color = GetColor(iosHabit),
                 FreqNum = frequencyNumerator,
                 FreqDen = frequencyDenominator,
-                Name = iosHabit.Title,
-                Position = habitPosition,
+                Name = name,
+                Position = position,
                 ReminderDays = reminderDays,
                 ReminderHour = reminderHour,
                 ReminderMin = reminderMinutes,
@@ -45,7 +46,7 @@ public sealed class IosToLoopConverter
             };
 
             loopHabitList.Add(habit);
-            habitPosition++;
+            lineIndex++;
         }
 
 
@@ -58,6 +59,23 @@ public sealed class IosToLoopConverter
         loopDatabaseContext.Habits.AddRange(loopHabitList);
 
         loopDatabaseContext.SaveChanges();
+    }
+
+    private static (int, string) InferPosition(IosHabit iosHabit)
+    {
+        var splitTitle = iosHabit.Title.Split('.', 2);
+
+        if (splitTitle.Length != 2)
+        {
+            throw new FormatException();
+        }
+
+        if (!int.TryParse(splitTitle[0], out var result))
+        {
+            throw new FormatException();
+        }
+
+        return (result - 1, splitTitle[1]);
     }
 
     private static LoopColor GetColor(IosHabit iosHabit) =>

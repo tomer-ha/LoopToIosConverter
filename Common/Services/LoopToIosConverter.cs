@@ -16,18 +16,21 @@ public sealed class LoopToIosConverter : IDisposable
     public void Dispose() => 
         _loopDatabaseContext.Dispose();
 
-    public async Task ConvertAsync(string csvPath)
+    public async Task ConvertAsync(string csvPath, bool keepOrder = false)
     {
         var iosHabitList = new List<IosHabit>();
 
-        foreach (var loopHabit in _loopDatabaseContext.Habits.Include(habit => habit.Repetitions).ToList())
+        foreach (var loopHabit in _loopDatabaseContext.Habits.Include(habit => habit.Repetitions).OrderBy(habit => habit.Position).ToList())
         {
             IosHabit iosHabit;
+
+            var habitName = keepOrder ? $"{(loopHabit.Position + 1):D2}. {loopHabit.Name}" : loopHabit.Name;
+
             if (loopHabit.Type == LoopHabitType.YesNo)
             {
                 iosHabit = new IosBasicHabit(
                     (int)loopHabit.Id,
-                    loopHabit.Name, 
+                    habitName, 
                     loopHabit.Question, 
                     GetColor(loopHabit), 
                     GetCreationTime(loopHabit), 
@@ -43,8 +46,8 @@ public sealed class LoopToIosConverter : IDisposable
                 }
 
                 iosHabit = new IosProgressiveHabit(
-                    (int)loopHabit.Id, 
-                    loopHabit.Name, 
+                    (int)loopHabit.Id,
+                    habitName, 
                     loopHabit.Question, 
                     GetColor(loopHabit), 
                     GetCreationTime(loopHabit), 

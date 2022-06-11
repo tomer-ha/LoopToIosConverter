@@ -11,5 +11,8 @@ Console.WriteLine("Hello, World!");
 //var converter = new LoopToIosConverter.Common.IosToLoopConverter(@"C:\Users\tomer\Downloads\HabitudeBackup_2022-06-11-17_57_07.csv");
 //await converter.ConvertAsync(@"C:\Users\tomer\Downloads\convertedFromIos3.db");
 
-using var converter = new LoopToIosConverter.Common.LoopToIosConverter(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.db");
-await converter.ConvertAsync(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.csv");
+//using var converter = new LoopToIosConverter.Common.LoopToIosConverter(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.db");
+//await converter.ConvertAsync(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.csv", true);
+
+var converter = new LoopToIosConverter.Common.IosToLoopConverter(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.csv");
+await converter.ConvertAsync(@"C:\Users\tomer\Downloads\Loop Habits local\reconverted.db", true);
