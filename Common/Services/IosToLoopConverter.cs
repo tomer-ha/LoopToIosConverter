@@ -139,7 +139,7 @@ public sealed class IosToLoopConverter
             IosProgressiveHabit iosProgressiveHabit => iosProgressiveHabit.DateAndValues.Select(dateAndValue => new Repetition
             {
                 Timestamp = new DateTimeOffset(dateAndValue.Date.ToDateTime(new TimeOnly())).ToUnixTimeMilliseconds(),
-                Value = dateAndValue.Value
+                Value = (int)(dateAndValue.Value * 1000)
             }).
             ToList(),
             _ => throw new NotImplementedException()
