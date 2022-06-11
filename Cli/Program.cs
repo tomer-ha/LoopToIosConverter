@@ -1,18 +1,70 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-Console.WriteLine("Hello, World!");
+using CommandLine;
+using LoopToIosConverter.Cli;
+using LoopToIosConverter.Common;
 
-//using var converter = new LoopToIosConverter.Common.LoopToIosConverter("C:\\Users\\tomer\\Downloads\\Loop Habits Backup 2022-03-26 165755.db");
-//await converter.ConvertAsync(@"C:\Users\tomer\Downloads\converted.csv");
+(await Parser.Default.ParseArguments<CliOptions>(args).WithParsedAsync(RunAsync)).WithNotParsed(HandleErrors);
 
-//var converter = new LoopToIosConverter.Common.IosToIosTest(@"C:\Users\tomer\Downloads\HabitudeBackup_2022-06-9-21_26_42.csv");
-//await converter.ConvertAsync(@"C:\Users\tomer\Downloads\convertedFromIos.csv");
+static async Task RunAsync(CliOptions cliOptions)
+{
+    if (cliOptions.Mode == Mode.Infer)
+    {
+        cliOptions.Mode = InferMode();
+    }
 
-//var converter = new LoopToIosConverter.Common.IosToLoopConverter(@"C:\Users\tomer\Downloads\HabitudeBackup_2022-06-11-17_57_07.csv");
-//await converter.ConvertAsync(@"C:\Users\tomer\Downloads\convertedFromIos3.db");
+    var task = cliOptions.Mode switch
+    {
+        Mode.LoopToIos => RunLoopToIosAsync(),
+        Mode.IosToLoop => RunIosToLoopAsync(),
+        Mode.FixIos => RunIosToIosAsync(),
+        _ => throw new NotImplementedException()
+    };
 
-//using var converter = new LoopToIosConverter.Common.LoopToIosConverter(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.db");
-//await converter.ConvertAsync(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.csv", true);
+    await task;
 
-var converter = new LoopToIosConverter.Common.IosToLoopConverter(@"C:\Users\tomer\Downloads\Loop Habits local\Loop Habits Backup 2022-06-11 181539.csv");
-await converter.ConvertAsync(@"C:\Users\tomer\Downloads\Loop Habits local\reconverted.db", true);
+    Mode InferMode()
+    {
+        const string loopSuffix = "db";
+        const string iosSuffix = "csv";
+
+        if (cliOptions.InputFile.EndsWith(iosSuffix))
+        {
+            if (cliOptions.OutputFile.EndsWith(iosSuffix))
+            {
+                return Mode.FixIos;
+            }
+            else if (cliOptions.OutputFile.EndsWith(loopSuffix))
+            {
+                return Mode.IosToLoop;
+            }
+        }
+        else if (cliOptions.InputFile.EndsWith(loopSuffix) && cliOptions.OutputFile.EndsWith(iosSuffix))
+        {
+            return Mode.LoopToIos;
+        }
+
+        throw new FormatException($"Could not infer conversion direction from file name suffixes. iOS suffix is \"{iosSuffix}\" and Loop suffix is \"{loopSuffix}\"");
+    }
+
+    async Task RunLoopToIosAsync()
+    {
+        using var converter = new LoopToIosConverter.Common.LoopToIosConverter(cliOptions.InputFile);
+        await converter.ConvertAsync(cliOptions.OutputFile, cliOptions.PreserveOrder);
+    }
+
+    async Task RunIosToLoopAsync()
+    {
+        var converter = new IosToLoopConverter(cliOptions.InputFile);
+        await converter.ConvertAsync(cliOptions.OutputFile, cliOptions.PreserveOrder);
+    }
+
+    async Task RunIosToIosAsync()
+    {
+        var converter = new IosToIosFixer(cliOptions.InputFile);
+        await converter.ConvertAsync(cliOptions.OutputFile);
+    }
+}
+
+static void HandleErrors(IEnumerable<Error> errors) => 
+    throw new FormatException("Error parsing arguments.");
