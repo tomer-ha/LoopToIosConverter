@@ -63,11 +63,18 @@ public static class IosHabitFormatter
             string.Join(",", progressiveHabit.Units, progressiveHabit.DateAndValues.ToCsvFormat(), "1");
     }
 
-    private static IReadOnlyCollection<IosDateAndValue> ParseDateAndValues(string csvFormat) =>
-        csvFormat.Split('-').
+    private static IReadOnlyCollection<IosDateAndValue> ParseDateAndValues(string csvFormat)
+    {
+        if (string.IsNullOrEmpty(csvFormat))
+        {
+            return Array.Empty<IosDateAndValue>();
+        }
+
+        return csvFormat.Split('-').
             Select(csvDateAndValue => csvDateAndValue.Split(':')).
             Select(splitCsvDateAndValue => new IosDateAndValue(DateOnly.ParseExact(splitCsvDateAndValue[0], _repetitionDateFormat), decimal.Parse(splitCsvDateAndValue[1]))).
             ToList();
+    }
 
     private static string ToCsvFormat(this IReadOnlyCollection<IosDateAndValue> dateAndValues) =>
         string.Join("-", dateAndValues.Select(dateAndValue => $"{dateAndValue.Date.ToString(_repetitionDateFormat)}:{dateAndValue.Value}").ToArray());
