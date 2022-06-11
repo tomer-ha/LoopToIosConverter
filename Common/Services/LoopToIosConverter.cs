@@ -117,7 +117,7 @@ public sealed class LoopToIosConverter : IDisposable
             for (var i = 0; i < 7; i++)
             {
                 var flag = 1 << i;
-                days[i] = (reminderDaysIntValue & flag) > 0;
+                days[(i + 5) % 7] = (reminderDaysIntValue & flag) > 0;
             }
 
             return new IosNotificationSettings(new TimeOnly(loopHabit.ReminderHour.Value, loopHabit.ReminderMin.Value), days);
@@ -130,7 +130,7 @@ public sealed class LoopToIosConverter : IDisposable
         loopHabit.Repetitions.
         Select(repetitionLong => new IosDateAndValue(
             DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeMilliseconds(repetitionLong.Timestamp).UtcDateTime),
-            repetitionLong.Value)).
+            (decimal)repetitionLong.Value / 1000)).
         ToList();
 
     private static IReadOnlyCollection<DateOnly> GetCompletionDates(Habit loopHabit) =>

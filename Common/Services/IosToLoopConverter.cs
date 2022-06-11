@@ -97,7 +97,7 @@ public sealed class IosToLoopConverter
         var flag = 1;
         for (var i = 0; i < 7; i++)
         {
-            if (iosHabit.NotificationSettings.DaysOfWeek[i])
+            if (iosHabit.NotificationSettings.DaysOfWeek[(i + 5) % 7])
             {
                 weekdays |= flag;
             }

@@ -39,13 +39,13 @@ public enum LoopHabitType : long
 [Flags]
 public enum LoopWeekdays : long
 {
+    Saturday,
+    Sunday,
     Monday,
     Tuesday,
     Wednesday,
     Thursday,
-    Friday,
-    Saturday,
-    Sunday
+    Friday
 }
 
 public sealed record LoopFrequency(int Numerator, int Denominator);

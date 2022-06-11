@@ -37,7 +37,7 @@ public static class IosHabitFormatter
             habit.Id.ToString(),
             Quoted(habit.Title),
             habit is IosBasicHabit ? "0" : "1",
-            Quoted(habit.Question),
+            string.IsNullOrEmpty(habit.Question) ? string.Empty : Quoted(habit.Question),
             habit.Color.ToString("D"),
             habit.CreationTime.ToString(_creationTimeFormat),
             Quoted(habit.Frequency.ToCsvString()),
@@ -209,7 +209,7 @@ public enum IosFrequencyType
 public class IosNotificationSettings
 {
     public TimeOnly TimeOfDay { get; }
-    public bool[] DaysOfWeek { get; } = new bool[7];
+    public bool[] DaysOfWeek { get; } = new bool[7]; // Starts in Monday
 
     public IosNotificationSettings(string csvFormat)
     {
