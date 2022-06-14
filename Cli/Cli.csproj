@@ -5,7 +5,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<RootNamespace>LoopToIosConverter.Cli</RootNamespace>
+	  <RootNamespace>LoopToIosConverter.Cli</RootNamespace>
+    <AssemblyName>LoopToIosConverter</AssemblyName>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
