@@ -1,6 +1,6 @@
 ﻿namespace LoopToIosConverter.Common;
 
-public class IosToIosFixer
+public sealed class IosToIosFixer
 {
     private readonly string _csvFilePath;
 
