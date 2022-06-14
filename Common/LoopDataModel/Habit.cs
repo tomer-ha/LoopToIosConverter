@@ -8,7 +8,7 @@ public partial class Habit
     }
 
     public long Id { get; set; }
-    public int Archived { get; set; }
+    public bool Archived { get; set; }
     public LoopColor Color { get; set; }
     public string Description { get; set; } = string.Empty;
     public int? FreqDen { get; set; }

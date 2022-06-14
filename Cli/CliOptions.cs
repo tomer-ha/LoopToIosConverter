@@ -1,9 +1,4 @@
 ﻿using CommandLine;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoopToIosConverter.Cli;
 
@@ -20,6 +15,9 @@ internal class CliOptions
 
     [Option('p', "preserveOrder", Required = false, Default = false, HelpText = "Add numbers to habits so they can be sorted in iOS")]
     public bool PreserveOrder { get; set; } = false;
+
+    [Option('s', "skipArchived", Required = false, Default = false, HelpText = "Do not convert archived habits from Loop")]
+    public bool SkipArchived { get; set; } = false;
 }
 
 internal enum Mode

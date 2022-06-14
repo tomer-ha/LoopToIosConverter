@@ -1,10 +1,8 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using CommandLine;
+﻿using CommandLine;
 using LoopToIosConverter.Cli;
 using LoopToIosConverter.Common;
 
-(await Parser.Default.ParseArguments<CliOptions>(args).WithParsedAsync(RunAsync)).WithNotParsed(HandleErrors);
+await Parser.Default.ParseArguments<CliOptions>(args).WithParsedAsync(RunAsync);
 
 static async Task RunAsync(CliOptions cliOptions)
 {
@@ -50,7 +48,7 @@ static async Task RunAsync(CliOptions cliOptions)
     async Task RunLoopToIosAsync()
     {
         using var converter = new LoopToIosConverter.Common.LoopToIosConverter(cliOptions.InputFile);
-        await converter.ConvertAsync(cliOptions.OutputFile, cliOptions.PreserveOrder);
+        await converter.ConvertAsync(cliOptions.OutputFile, cliOptions.PreserveOrder, cliOptions.SkipArchived);
     }
 
     async Task RunIosToLoopAsync()
@@ -65,6 +63,3 @@ static async Task RunAsync(CliOptions cliOptions)
         await converter.ConvertAsync(cliOptions.OutputFile);
     }
 }
-
-static void HandleErrors(IEnumerable<Error> errors) => 
-    throw new FormatException("Error parsing arguments.");

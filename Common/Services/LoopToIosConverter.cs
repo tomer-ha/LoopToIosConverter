@@ -16,49 +16,64 @@ public sealed class LoopToIosConverter : IDisposable
     public void Dispose() => 
         _loopDatabaseContext.Dispose();
 
-    public async Task ConvertAsync(string csvPath, bool keepOrder = false)
+    public async Task ConvertAsync(string csvPath, bool keepOrder = false, bool skipArchived = false)
     {
-        var iosHabitList = new List<IosHabit>();
+        var loopHabits = _loopDatabaseContext.Habits.
+            Where(habit => !habit.Archived || !skipArchived).
+            Include(habit => habit.Repetitions).
+            OrderBy(habit => habit.Position).
+            ToList();
 
-        foreach (var loopHabit in _loopDatabaseContext.Habits.Include(habit => habit.Repetitions).OrderBy(habit => habit.Position).ToList())
+        var iosHabitList = new List<IosHabit>(loopHabits.Count);
+        var counter = 1;
+        foreach (var loopHabit in loopHabits)
         {
-            IosHabit iosHabit;
-
-            var habitName = keepOrder ? $"{(loopHabit.Position + 1):D2}. {loopHabit.Name}" : loopHabit.Name;
-
-            if (loopHabit.Type == LoopHabitType.YesNo)
+            try
             {
-                iosHabit = new IosBasicHabit(
-                    (int)loopHabit.Id,
-                    habitName, 
-                    loopHabit.Question, 
-                    GetColor(loopHabit), 
-                    GetCreationTime(loopHabit), 
-                    GetFrequency(loopHabit), 
-                    GetNotificationSettings(loopHabit), 
-                    GetCompletionDates(loopHabit));
-            }
-            else
-            {
-                if (loopHabit.TargetType == LoopTargetType.AtMost)
-                { 
-                    throw new FormatException($"{nameof(LoopTargetType.AtMost)} habits are not supported"); 
+                IosHabit iosHabit;
+
+                var habitName = keepOrder ? $"{counter:D2}. {loopHabit.Name}" : loopHabit.Name;
+
+                if (loopHabit.Type == LoopHabitType.YesNo)
+                {
+                    iosHabit = new IosBasicHabit(
+                        (int)loopHabit.Id,
+                        habitName,
+                        loopHabit.Question,
+                        GetColor(loopHabit),
+                        GetCreationTime(loopHabit),
+                        GetFrequency(loopHabit),
+                        GetNotificationSettings(loopHabit),
+                        GetCompletionDates(loopHabit));
+                }
+                else
+                {
+                    if (loopHabit.TargetType == LoopTargetType.AtMost)
+                    {
+                        throw new FormatException($"{nameof(LoopTargetType.AtMost)} habits are not supported");
+                    }
+
+                    iosHabit = new IosProgressiveHabit(
+                        (int)loopHabit.Id,
+                        habitName,
+                        loopHabit.Question,
+                        GetColor(loopHabit),
+                        GetCreationTime(loopHabit),
+                        GetFrequency(loopHabit),
+                        GetNotificationSettings(loopHabit),
+                        loopHabit.TargetValue,
+                        loopHabit.Unit,
+                        GetDateToValues(loopHabit));
                 }
 
-                iosHabit = new IosProgressiveHabit(
-                    (int)loopHabit.Id,
-                    habitName, 
-                    loopHabit.Question, 
-                    GetColor(loopHabit), 
-                    GetCreationTime(loopHabit), 
-                    GetFrequency(loopHabit), 
-                    GetNotificationSettings(loopHabit), 
-                    loopHabit.TargetValue, 
-                    loopHabit.Unit, 
-                    GetDateToValues(loopHabit));
+                iosHabitList.Add(iosHabit);
             }
-
-            iosHabitList.Add(iosHabit);
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+            
+            counter++;
         }
 
         using var file = new StreamWriter(csvPath);
