@@ -11,7 +11,7 @@ I didn't want to lose my data, so I made this little utility to convert data fro
 
 ## Usage
 
-Download the app and the [.NET runtime](https://dotnet.microsoft.com/en-us/download) for your machine (Windows, Linux and Max are supported).
+Download the app and the [.NET 6 runtime](https://dotnet.microsoft.com/en-us/download) for your machine (Windows, Linux and Mac are supported).
 
 ### Export from Android to iOS
 
