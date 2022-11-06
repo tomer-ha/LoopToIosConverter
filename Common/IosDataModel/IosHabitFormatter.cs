@@ -42,7 +42,7 @@ public static class IosHabitFormatter
             habit.CreationTime.ToString(_creationTimeFormat),
             Quoted(habit.Frequency.ToCsvString()),
             Quoted(habit.NotificationSettings?.ToCsvString() ?? string.Empty),
-            habit.Target.ToString("F1"));
+            habit.Target.ToString("F1", CultureInfo.InvariantCulture));
 
         var suffixString = habit switch
         {
