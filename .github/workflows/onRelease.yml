@@ -33,7 +33,7 @@ jobs:
           tag=$(git describe --tags --abbrev=0)
           release_name="LoopToIosConverter-$tag-${{ matrix.target }}"
           # Build everything
-          dotnet publish Cli/Cli.csproj --runtime "${{ matrix.target }}" --no-self-contained -p:PublishTrimmed=true -c Release -o "$release_name"
+          dotnet publish Cli/Cli.csproj --runtime "${{ matrix.target }}" --no-self-contained -c Release -o "$release_name"
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]; then
             # Pack to zip for Windows
