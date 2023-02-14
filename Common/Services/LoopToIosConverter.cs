@@ -152,7 +152,8 @@ public sealed class LoopToIosConverter : IDisposable
         ToList();
 
     private static IReadOnlyCollection<DateOnly> GetCompletionDates(Habit loopHabit) =>
-        GetDateToValues(loopHabit).
-        Select(dateAndValue => dateAndValue.Date).
+        loopHabit.Repetitions.
+        Where(repetition => repetition.Value == 2).
+        Select(repetition => DateOnly.FromDateTime(DateTimeOffset.FromUnixTimeMilliseconds(repetition.Timestamp).UtcDateTime)).
         ToList();
 }
