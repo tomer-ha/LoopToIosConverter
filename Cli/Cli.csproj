@@ -8,8 +8,8 @@
     <RootNamespace>LoopToIosConverter.Cli</RootNamespace>
     <AssemblyName>LoopToIosConverter</AssemblyName>
     <PublishSingleFile>true</PublishSingleFile>
-    <AssemblyVersion>1.0.1</AssemblyVersion>
-    <ProductVersion>1.0.1</ProductVersion>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
+    <ProductVersion>1.1.0</ProductVersion>
   </PropertyGroup>
 
   <ItemGroup>
