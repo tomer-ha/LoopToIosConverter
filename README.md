@@ -1,5 +1,7 @@
 # Loop to iOS Converter
 
+**NEW: try the [web-based converter](https://tomer-ha.github.io/LoopToIosConverter/)**
+
 I am a long time [Loop Habit Tracker](https://github.com/iSoron/uhabits) user.
 Recently I have decided to switch from Android phones to an iPhone, but I could not find good alternatives for habit-tracking.
 It turns out that the good folks at Loop have already expressed a desire to create an iOS version, but it's still in the oven, possibly for a long time.
@@ -9,9 +11,9 @@ Unfortunately, it is not open source and is ad-supported, but I can live with it
 
 I didn't want to lose my data, so I made this little utility to convert data from Loop to the iOS counterpart, and back from iOS to Loop (hopefully Loop will become available for iOS or I'll return back to Android).
 
-## Usage
+## Advanced Usage
 
-Download the app and the [.NET 6 runtime](https://dotnet.microsoft.com/en-us/download) for your machine (Windows, Linux and Mac are supported).
+Download the app and the [.NET 8 runtime](https://dotnet.microsoft.com/en-us/download) for your machine (Windows, Linux and Mac are supported).
 
 ### Export from Android to iOS
 
