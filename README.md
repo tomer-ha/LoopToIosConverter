@@ -1,6 +1,6 @@
 # Loop to iOS Converter
 
-**NEW: try the [web-based converter](https://tomer-ha.github.io/LoopToIosConverter/)**
+**NEW: try the [web-based converter](https://tomer-ha.github.io/LoopToIosConverter/)**. The data stays on your device and not sent anywhere.
 
 I am a long time [Loop Habit Tracker](https://github.com/iSoron/uhabits) user.
 Recently I have decided to switch from Android phones to an iPhone, but I could not find good alternatives for habit-tracking.
