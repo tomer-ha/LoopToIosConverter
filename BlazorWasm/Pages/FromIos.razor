@@ -1,0 +1,84 @@
+﻿@page "/fromIos"
+
+@using LoopToIosConverter.Common
+@using Microsoft.EntityFrameworkCore
+@inject IJSRuntime JS
+
+<PageTitle>Convert data to Loop Habit Tracker</PageTitle>
+
+<h1>Convert data to Loop Habit Tracker</h1>
+
+<ol>
+
+    <li>Go to the iOS Habits app, enter the settings page an choose "Export data". This will use your iOS Mail app to send an email with the .csv file attached. Send it to yourself</li>
+    <li>
+
+<div class="mb-3">
+    <label for="fileUploader" class="form-label">Choose the .csv file to convert:</label>
+            <InputFile OnChange="@OnFileUploaded" class="form-control" id="fileUploader" accept=".csv" />
+</div>
+<div hidden="@(_browserFile is null)">
+    <button class="btn btn-primary" @onclick="ConvertAsync">Convert</button>
+</div>
+<div hidden="@(_errors is null)" class="card card-body mb-3">
+    <p>Error log:</p>
+    <InputTextArea @bind-Value="@_errors" rows="10" class="form-control"></InputTextArea>
+</div>
+
+    </li>
+
+    <li>Transfer the downloaded db file to your Android phone</li>
+    <li>Install <a href="https://play.google.com/store/apps/details?id=org.isoron.uhabits">Loops Habit Tracker</a> from the Play Store</li>
+    <li>Open the app (the icon says "Habits"), open the settings page and click "Import data". Choose the .db file you produced</li>
+</ol>
+
+@code {
+    private IBrowserFile? _browserFile = null;
+    private string? _errors = null;
+
+    private void OnFileUploaded(InputFileChangeEventArgs e)
+    {
+        _browserFile = e.File;
+        _errors = null;
+        StateHasChanged();
+    }
+
+    private async Task ConvertAsync()
+    {
+        if (_browserFile is null)
+        {
+            return;
+        }
+
+        try
+        {
+            const string inputPath = "file.csv";
+            const string outputPath = "converted.db";
+            await using (var fileStream = new FileStream(inputPath, FileMode.Create))
+            {
+                await _browserFile.OpenReadStream().CopyToAsync(fileStream);
+            }
+
+            var contextOptions = new DbContextOptionsBuilder<LoopHabitsBackupContext>().UseSqlite($"data source={outputPath}").Options;
+
+            await using var loopDatabaseContext = new LoopHabitsBackupContext(contextOptions);
+            await loopDatabaseContext.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=Memory");
+
+            var iosToLoop = new IosToLoopConverter(inputPath);
+            await iosToLoop.ConvertAsync(loopDatabaseContext);
+
+            await using (var fileStream = new FileStream(outputPath, FileMode.Open))
+            {
+                using var streamRef = new DotNetStreamReference(stream: fileStream);
+                await JS.InvokeVoidAsync("downloadFileFromStream", outputPath, streamRef);
+            }
+
+            File.Delete(inputPath);
+            File.Delete(outputPath);
+        }
+        catch (Exception exception)
+        {
+            _errors = exception.ToString();
+        }
+    }
+}

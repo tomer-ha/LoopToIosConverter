@@ -13,6 +13,14 @@ public sealed class IosToLoopConverter
 
     public async Task ConvertAsync(string dbFilePath, bool keepOrder = false)
     {
+        var contextOptions = new DbContextOptionsBuilder<LoopHabitsBackupContext>().UseSqlite($"data source={dbFilePath}").Options;
+
+        await using var loopDatabaseContext = new LoopHabitsBackupContext(contextOptions);
+        await ConvertAsync(loopDatabaseContext, keepOrder);
+    }
+
+    public async Task ConvertAsync(LoopHabitsBackupContext loopDatabaseContext, bool keepOrder = false)
+    {
         var loopHabitList = new List<Habit>();
 
         using var fileReader = new StreamReader(_csvFilePath);
@@ -49,16 +57,12 @@ public sealed class IosToLoopConverter
             lineIndex++;
         }
 
-
-        var contextOptions = new DbContextOptionsBuilder<LoopHabitsBackupContext>().UseSqlite($"data source=\"{dbFilePath}\"").Options;
-
-        using var loopDatabaseContext = new LoopHabitsBackupContext(contextOptions);
         await loopDatabaseContext.Database.EnsureCreatedAsync();
         await loopDatabaseContext.Database.ExecuteSqlRawAsync("PRAGMA user_version = 24");
 
         loopDatabaseContext.Habits.AddRange(loopHabitList);
 
-        loopDatabaseContext.SaveChanges();
+        await loopDatabaseContext.SaveChangesAsync();
     }
 
     private static (int, string) InferPosition(IosHabit iosHabit)

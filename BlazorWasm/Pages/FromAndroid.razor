@@ -1,0 +1,76 @@
+﻿@page "/fromAndroid"
+@using LoopToIosConverter.Common
+@inject IJSRuntime JS
+
+<PageTitle>Convert data from Loop Habit Tracker</PageTitle>
+
+<h1>Convert data from Loop Habit Tracker</h1>
+
+<ol>
+    <li>Go to Loop's settings page and choose "Export full backup"</li>
+
+    <li>
+<div class="mb-3">
+    <label for="fileUploader" class="form-label">Choose your .db file to convert. Conversion might take some time</label>
+    <InputFile OnChange="@OnFileUploaded" class="form-control" id="fileUploader" accept=".db" />
+</div>
+<div hidden="@(_browserFile is null)">
+    <button class="btn btn-primary" @onclick="ConvertAsync">Convert</button>
+</div>
+<div hidden="@(_errors is null)" class="card card-body mb-3">
+    <p >Error log:</p>
+    <InputTextArea @bind-Value="@_errors" rows="10" class="form-control"></InputTextArea>
+</div>
+    </li>
+    <li>Transfer the downloaded csv file to your iPhone (via email or cloud storage)</li>
+    <li>Install <a href="https://apps.apple.com/us/app/habit-tracker-your-goals/id1471303896">Habit Tracker - Your Goals</a> on your iPhone, go to the settings and choose "Import data"</li>
+    <li>
+        Locate the csv file you produced, wait a few seconds until you see a banner saying the import job was completed
+    </li>
+</ol>
+
+@code {
+    private IBrowserFile? _browserFile = null;
+    private string? _errors = null;
+
+    private void OnFileUploaded(InputFileChangeEventArgs e)
+    {
+        _browserFile = e.File;
+        _errors = null;
+        StateHasChanged();
+    }
+
+    private async Task ConvertAsync()
+    {
+        if (_browserFile is null)
+        {
+            return;
+        }
+
+        try
+        {
+            const string inputPath = "file.db";
+            const string outputPath = "converted.csv";
+            await using (var fileStream = new FileStream(inputPath, FileMode.Create))
+            {
+                await _browserFile.OpenReadStream().CopyToAsync(fileStream);
+            }
+
+            var loopToIos = new LoopToIosConverter(inputPath);
+            await loopToIos.ConvertAsync(outputPath);
+
+            await using (var fileStream = new FileStream(outputPath, FileMode.Open))
+            {
+                using var streamRef = new DotNetStreamReference(stream: fileStream);
+                await JS.InvokeVoidAsync("downloadFileFromStream", outputPath, streamRef);
+            }
+
+            File.Delete(inputPath);
+            File.Delete(outputPath);
+        }
+        catch (Exception exception)
+        {
+            _errors = exception.ToString();
+        }
+    }
+}
